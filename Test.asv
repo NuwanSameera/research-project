@@ -9,7 +9,7 @@ g = 9.8;
 data = xlsread('2-latiral-1.xlsx');
 Gyroscope = data(: , 5 : 7) * (pi / 180);   % degres/sec convert to rad/sec
 Accelometer = data(:, 2 : 4) * g;           % Units in 'g'
-Magnetometer = data(:, 8 : 10) * 10.^6;     % µT convert to T
+Magnetometer = data(:, 8 : 10) * 10.^6;     %  µT
 
 time = data(:, 1);
 

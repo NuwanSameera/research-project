@@ -1,4 +1,11 @@
 function [R] = computeMesaurementCovarianceMatrix(sigma_a, sigma_m)
+
+%   computeMesaurementCovarianceMatrix
+%   Input : sigma_a = Variance of acceleration
+%           sigma_m = Variance of magnetometer
+%   Output : R
+% 
+
     O = [0 0 0;
          0 0 0;
          0 0 0];
@@ -12,5 +19,6 @@ function [R] = computeMesaurementCovarianceMatrix(sigma_a, sigma_m)
     
     R = [R_a O;
          O R_m];
+     
 end
 

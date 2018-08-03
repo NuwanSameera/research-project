@@ -1,5 +1,11 @@
 function [F] = computeJacobian(g , h, x_k)
 
+%    computeJacobian
+%    Input : g = Gravity [g1; g2; g3]   
+%            h = Earth magnetic field [h1; h2; h3]
+%            x_k = Measurement [q0; q1; q2; q3; a0; a1; a2; m0; m1; m2]    
+%    Output : F = Jacobian matrix w.r.t x_k   
+
     syms q0 q1 q2 q3 a0 a1 a2 m0 m1 m2;
     q = [q0 q1 q2 q3];
     a = [a0 ; a1; a1];
