@@ -6,19 +6,15 @@ function [R] = computeMesaurementCovarianceMatrix(sigma_a, sigma_m)
 %   Output : R
 % 
 
-    O = [0 0 0;
-         0 0 0;
-         0 0 0];
+    O = zeros(3);
     
-    I = [1 0 0;
-         0 1 0;
-         0 0 1];
+    I = eye(3);
      
     R_a = (sigma_a.^2) * I;
     R_m = (sigma_m.^2) * I;
     
-    R = [R_a O;
-         O R_m];
+    R = [R_a    O;
+         O    R_m];
      
 end
 

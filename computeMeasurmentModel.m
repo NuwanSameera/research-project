@@ -9,11 +9,10 @@ function [z_k] = computeMeasurmentModel(q_k, g ,h , a_k, m_k)
 %    Output : z_k
 % 
 
-    O = [0 0 0; 
-         0 0 0; 
-         0 0 0];
+    O = zeros(3);
      
     C_b_n = computeDirectionCosineMatrix(q_k);
-    z_k = [C_b_n O; O C_b_n] * [g ; h] + [a_k; m_k];
+    
+    z_k = [C_b_n O; O C_b_n] * [g ; h] + [a_k ; m_k];
 
 end

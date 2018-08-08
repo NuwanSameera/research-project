@@ -16,47 +16,48 @@ function [x_k, x_k_bar, p_k_bar] = kalmanPropergation(x_k_1, p_k_1, r_k, params)
 %             x_k = Current updated state
 
     %Compute the Kalman gain using previous estimation
-    F = double(computeJacobian(params.g , params.h, x_k_1));
+    
+    x_k_1(1:4, 1) = normalize(x_k_1(1:4, 1));
+    F = computeJacobian(params.g , params.h, x_k_1);
+    
     R = computeMesaurementCovarianceMatrix(params.sigma_a, params.sigma_m);
-    K = p_k_1 * transpose(F) * (inv(F * p_k_1 * transpose(F) + R));    
+    
+    K = p_k_1 * F.' * (inv(F * p_k_1 * F.' + R));    
     
     %Compute the a posteriori state estimate - Update previous predicted state using
     %   current value
-    q_k_1 = normalize(x_k_1([1:4], 1));
-    x_k_1([1:4], 1) = q_k_1;
     
-    a_k_1 = x_k_1([5:7], 1);
-    m_k_1 = x_k_1([8:10], 1);
+    q_k_1 = x_k_1(1:4, 1);
+    
+    a_k_1 = x_k_1(5:7, 1);
+    m_k_1 = x_k_1(8:10, 1);
     
     z_k_1 = computeMeasurmentModel(q_k_1, params.g ,params.h , a_k_1, m_k_1);
     
-    %Compute current quaternian from previous quaternian
-
-    a_k = r_k([1:3], 1);
-    m_k = r_k([7:9], 1);
+    a_k = r_k(1:3, 1);
+    m_k = r_k(7:9, 1);
     
     z_k = [a_k ; m_k];
     
-    %z_k = computeMeasurmentModel(q_k, params.g ,params.h , a_k, m_k);
-    
     x_k = x_k_1 + K *(z_k - z_k_1);   % Updated estimation
   
-    %x_k([1:4], 1) = normalize(x_k([1:4], 1));   %Normalize updated Quaternian
+    x_k(1:4, 1) = normalize(x_k(1:4, 1));   %Normalize updated Quaternian
        
     %Compute the a posteriori error covariance matrix - Update error covariance matrix
     p_k = p_k_1 - K * F * p_k_1;
     
     %Compute the a priori state estimate - Predict next state
-    w_k = r_k([4:6], 1);
+    w_k = r_k(4:6, 1);
     shi = computeStateTransitionMatrix(w_k, params.ts);
     x_k_bar = shi * x_k;
-
-    %x_k_bar([1:4], 1) = normalize(x_k_bar([1:4], 1));   %Normalize pradected Quaternian
+    
+    x_k_bar(1:4, 1) = normalize(x_k_bar(1:4, 1)); 
     
     %Compute the a priori error covariance matrix - Predict next error covariance matrix
-    q = x_k_bar([1:4], 1);      %Estimated quarternian
+    q = x_k_bar(1:4, 1);      %Estimated quarternian
 
     Qk = computeNoiceCovarianceMatrix(params.ts, q, params.a_sigma_w, params.m_sigma_w, params.sigma_g);
-    p_k_bar = shi * p_k * transpose(shi) + Qk;
+    
+    p_k_bar = shi * p_k * shi.' + Qk;
     
 end

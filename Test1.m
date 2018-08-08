@@ -6,27 +6,28 @@ clc
 g = 9.8;
 
 %Read data from file
-data = xlsread('2-forward-1.xlsx');
+data = xlsread('2-latiral-1.xlsx');
 %data = xlsread('1-adl-1.csv');
 Gyroscope = data(: , 5 : 7) * (pi / 180);   % degres/sec convert to rad/sec
 Accelometer = data(:, 2 : 4) * g;           % Units in 'g'
-Magnetometer = data(:, 8 : 10) * 0;     % µT convert to T
+Magnetometer = data(:, 8 : 10) * 0;         % µT convert to T
 
 time = data(:, 1);
 
 norm = sqrt(Accelometer(:,1).^2 + Accelometer(:,2).^2 + Accelometer(:,3).^2);
 
 %Initial conditions
-x_0 = [0; 0; 0; 1; g; 0; 0; 0; 0; 0];
+x_0 = [0; 0; 0; 1; g; 0; 2; 0; 0; 0];
+
 p_0 = zeros(10);
 
 %Parameters
-params.ts = 1/20;
-params.sigma_a = 0.0000001;
-params.sigma_m = 0.0000001;
-params.sigma_g = 0.0000001;
-params.a_sigma_w = 0.0000001;
-params.m_sigma_w = 0.0000001;
+params.ts = 1/20; 
+params.sigma_a = 0000000001;
+params.sigma_m = 0.001;
+params.sigma_g = 0000000001;
+params.a_sigma_w = 0000000001;
+params.m_sigma_w = 0.05;
 params.g = [-g; 0; 0];    %[x y z]
 params.h = [0; 0; 0];
 
@@ -45,6 +46,7 @@ for k=1:length(time)
     mag_k = transpose(Magnetometer(k,:));
 
     r_k = [acc_k; gyro_k; mag_k];
+    
     [x_k, x_k_bar, p_k_bar] = kalmanPropergation(x_k_1, p_k_1, r_k, params);
    
     x_k_1 = x_k_bar;
@@ -53,7 +55,7 @@ for k=1:length(time)
     q = transpose(x_k(1:4,1));
     euler(k, :) = computeEularAngles(q) * (180/pi);
     q_out(k, :) = q;
-    x_out(k, :) = transpose(x_k_bar);
+    x_out(k, :) = transpose(x_k);
     
 end
 
