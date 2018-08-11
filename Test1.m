@@ -3,33 +3,32 @@ close all
 clc
 
 %Constants
-g = 9.8;
+g = 10;
 
 %Read data from file
-data = xlsread('2-latiral-1.xlsx');
+data = xlsread('2-forward-1.xlsx');
 %data = xlsread('1-adl-1.csv');
-Gyroscope = data(: , 5 : 7) * (pi / 180);   % degres/sec convert to rad/sec
-Accelometer = data(:, 2 : 4) * g;           % Units in 'g'
-Magnetometer = data(:, 8 : 10) * 0;         % µT convert to T
+Gyroscope = -data(: , 5 : 7) * (pi / 180);   % degres/sec convert to rad/sec
+Accelometer = -data(:, 2 : 4) * g;           % Units in 'g'
+Magnetometer = -data(:, 8 : 10) * 10.^-6;         % µT convert to T
 
 time = data(:, 1);
 
 norm = sqrt(Accelometer(:,1).^2 + Accelometer(:,2).^2 + Accelometer(:,3).^2);
 
 %Initial conditions
-x_0 = [0; 0; 0; 1; g; 0; 2; 0; 0; 0];
-
+x_0 = [0; 0; 0; 1; 0; 0; -10; 0; 0; 0];
 p_0 = zeros(10);
 
 %Parameters
 params.ts = 1/20; 
-params.sigma_a = 0000000001;
+params.sigma_a = 5 * 10^-2;
 params.sigma_m = 0.001;
-params.sigma_g = 0000000001;
-params.a_sigma_w = 0000000001;
+params.sigma_g = 0.1;
+params.a_sigma_w = 5 * 10^-1;
 params.m_sigma_w = 0.05;
-params.g = [-g; 0; 0];    %[x y z]
-params.h = [0; 0; 0];
+params.g = [0; 0; g];    %[x y z]
+params.h = [10; 0; 10];
 
 %Initialize
 x_k_1 = x_0;

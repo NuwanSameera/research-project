@@ -13,9 +13,9 @@ function [F] = computeJacobian(g , h, x_k)
     
     measurment = computeMeasurmentModel(q, g ,h , a, m);
     
-    d = [q.' ; a ; m];
+    x = [q.' ; a ; m];
     
-    J = jacobian(measurment, d);
+    J = jacobian(measurment, x);
     
     x_k = x_k.';
     

@@ -13,7 +13,7 @@ function [shi] = computeStateTransitionMatrix(gyro_k, ts)
     
     O3 = O2.';
    
-    omega_ts = exp(computeOmega(gyro_k) * ts);
+    omega_ts = expm(computeOmega(gyro_k) * ts);
        
     shi = [omega_ts O3 O3;
            O2       I  O1;
