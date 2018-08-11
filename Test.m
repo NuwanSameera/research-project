@@ -6,16 +6,16 @@ clc
 g = 10;
 
 %Read data from file
-data = xlsread('2-forward-1.xlsx');
-%data = xlsread('1-adl-1.csv');
-Gyroscope = -data(: , 5 : 7) * (pi / 180);   % degres/sec convert to rad/sec
-Accelometer = -data(:, 2 : 4) * g;           % Units in 'g'
-Magnetometer = -data(:, 8 : 10) * 10.^-6;         % µT convert to T
+data = xlsread('1-adl-1.csv');
+
+Gyroscope = data(: , 5 : 7) * (pi / 180);   % degres/sec convert to rad/sec
+Accelometer = data(:, 2 : 4) * g;           % Units in 'g'
+Magnetometer = data(:, 8 : 10) * 10.^-6;         % µT convert to T
 
 time = data(:, 1);
 
 %Initial conditions
-x_0 = [0; 0; 0; 1; 0; 0; -10; 0; 0; 0];
+x_0 = [0; 0; 0; 1; 0; 0; 10; 0; 0; 0];
 p_0 = zeros(10);
 
 %Parameters
@@ -25,7 +25,7 @@ params.sigma_m = 0.001;
 params.sigma_g = 0.1;
 params.a_sigma_w = 5 * 10^-1;
 params.m_sigma_w = 0.05;
-params.g = [0; 0; g];    %[x y z]
+params.g = [0; 0; 0.1];    %[x y z]
 params.h = [10; 0; 10];
 
 %Initialize
@@ -54,34 +54,56 @@ for k=1:length(time)
     x_out(k, :) = transpose(x_k);
 end
 
+% Plot Accelometer Data
+
 figure;
-plot(time, q_out(:,1), 'r', time, q_out(:,2), 'g', time, q_out(:,3), 'b', time, q_out(:,4), 'y');grid on;
+plot(time, Accelometer(:,1), 'r', time, x_out(:, 5), 'b');
+title('X - axis Accelometer')
+legend('Raw Data','Filtered Data')
 
-%euler = quatern2euler(q_out) * (180/pi);
+figure;
+plot(time, Accelometer(:,2), 'r', time, x_out(:, 6), 'b');
+title('Y - axis Accelometer')
+legend('Raw Data','Filtered Data')
 
-%figure;
+figure;
+plot(time, Accelometer(:,3), 'r', time, x_out(:, 7), 'b');
+title('Z - axis Accelometer')
+legend('Raw Data','Filtered Data')
 
 norm = sqrt(Accelometer(:,1).^2 + Accelometer(:,2).^2 + Accelometer(:,3).^2);
-
-figure;
-plot(time, euler(:,1), 'r', time, euler(:,3), 'b', time, norm(:, 1), 'g');
-
-figure;
-
-subplot(411);
-plot(time, euler(:,1), 'r');grid on;
-ylabel('\phi (x-axis rotation[Roll])');
- 
-subplot(412);
-plot(time, euler(:,2), 'g');grid on;
-ylabel('\theta (y-axis rotation[pitch])');
-
-subplot(413);
-plot(time, euler(:,3), 'b');grid on;
-ylabel('\psi (z-axis rotation[yaw])');
-
 filtered_norm = sqrt(x_out(:, 5).^2 + x_out(:, 6).^2 + x_out(:, 7).^2);
 
-subplot(414);
-plot(time, norm(:, 1), 'g', time, filtered_norm(:,1));grid on;
-ylabel('Norm of Acceleration');
+figure;
+plot(time, norm, 'r', time, filtered_norm, 'b');
+title('Accelometer Norm')
+legend('Raw Data','Filtered Data')
+
+%Plot euler angles
+
+figure;
+
+plot(time, euler(:,1), 'r', time, euler(:,2), 'g', time, euler(:,3), 'b', time, filtered_norm(:,1), 'm');grid on;
+legend('Roll','Pitch', 'Yaw', 'Accelometer Norm')
+
+%subplot(411);
+% plot(time, euler(:,1), 'r');grid on;
+% ylabel('\phi (x-axis rotation[Roll])');
+%  
+% subplot(412);
+% plot(time, euler(:,2), 'g');grid on;
+% ylabel('\theta (y-axis rotation[pitch])');
+% 
+% subplot(413);
+% plot(time, euler(:,3), 'b');grid on;
+% ylabel('\psi (z-axis rotation[yaw])');
+% 
+% filtered_norm = sqrt(x_out(:, 5).^2 + x_out(:, 6).^2 + x_out(:, 7).^2);
+% 
+% subplot(414);
+% plot(time, norm(:, 1), 'g', time, filtered_norm(:,1));grid on;
+% ylabel('Norm of Acceleration');
+
+
+
+

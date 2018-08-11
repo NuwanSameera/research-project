@@ -8,16 +8,16 @@ g = 10;
 %Read data from file
 data = xlsread('2-forward-1.xlsx');
 %data = xlsread('1-adl-1.csv');
-Gyroscope = -data(: , 5 : 7) * (pi / 180);   % degres/sec convert to rad/sec
-Accelometer = -data(:, 2 : 4) * g;           % Units in 'g'
-Magnetometer = -data(:, 8 : 10) * 10.^-6;         % µT convert to T
+Gyroscope = data(: , 5 : 7) * (pi / 180);   % degres/sec convert to rad/sec
+Accelometer = data(:, 2 : 4) * g;           % Units in 'g'
+Magnetometer = data(:, 8 : 10) * 10.^-6;         % µT convert to T
 
 time = data(:, 1);
 
 norm = sqrt(Accelometer(:,1).^2 + Accelometer(:,2).^2 + Accelometer(:,3).^2);
 
 %Initial conditions
-x_0 = [0; 0; 0; 1; 0; 0; -10; 0; 0; 0];
+x_0 = [0; 0; 0; 1; 0; 0; 10; 0; 0; 0];
 p_0 = zeros(10);
 
 %Parameters
@@ -27,7 +27,7 @@ params.sigma_m = 0.001;
 params.sigma_g = 0.1;
 params.a_sigma_w = 5 * 10^-1;
 params.m_sigma_w = 0.05;
-params.g = [0; 0; g];    %[x y z]
+params.g = [0; 0; 0.1];    %[x y z]
 params.h = [10; 0; 10];
 
 %Initialize
