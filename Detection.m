@@ -3,18 +3,19 @@ close all
 clc
 
 %Constants
-g = 10;
+g = 9.81;
 
 %Read data from file
-data = xlsread('2-forward-1.xlsx');
-%data = xlsread('1-adl-1.csv');
+%data = xlsread('forward/15-forward-1.xlsx');
+%data = xlsread('backward/18-backward-1.xlsx');
+%data = xlsread('latiral/18-latiral-1.xlsx');
+data = xlsread('adl/6-adl-1.xlsx');
+
 Gyroscope = data(: , 5 : 7) * (pi / 180);   % degres/sec convert to rad/sec
 Accelometer = data(:, 2 : 4) * g;           % Units in 'g'
 Magnetometer = data(:, 8 : 10) * 10.^-6;         % µT convert to T
 
 time = data(:, 1);
-
-norm = sqrt(Accelometer(:,1).^2 + Accelometer(:,2).^2 + Accelometer(:,3).^2);
 
 %Initial conditions
 x_0 = [0; 0; 0; 1; 0; 0; 10; 0; 0; 0];
@@ -34,9 +35,11 @@ params.h = [10; 0; 10];
 x_k_1 = x_0;
 p_k_1 = p_0;
 
-euler = zeros(length(time), 3);
-q_out = zeros(length(time), 4);
-x_out = zeros(length(time), 10);
+acc_norm = zeros(length(time), 1);
+
+count = 0;
+
+fall_detect = 0;
 
 for k=1:length(time)
     
@@ -45,33 +48,37 @@ for k=1:length(time)
     mag_k = transpose(Magnetometer(k,:));
 
     r_k = [acc_k; gyro_k; mag_k];
-    
     [x_k, x_k_bar, p_k_bar] = kalmanPropergation(x_k_1, p_k_1, r_k, params);
    
     x_k_1 = x_k_bar;
     p_k_1 = p_k_bar;
     
     q = transpose(x_k(1:4,1));
-    euler(k, :) = computeEularAngles(q) * (180/pi);
-    q_out(k, :) = q;
-    x_out(k, :) = transpose(x_k);
+    euler_angles = abs(computeEularAngles(q) * (180/pi));
     
+    acc_norm(k) = sqrt(x_k_1(5).^2 + x_k_1(6).^2 + x_k_1(7).^2);
+   
+    roll = euler_angles(1);
+    yaw = euler_angles(3);
+    
+    if (roll > 20) || (yaw > 20)
+        count = count + 1;
+    else
+        count = 0;
+    end  
+        
+    if (count == 20 && max(acc_norm) > 17)
+        fall_detect = 1;
+        break;
+    else
+        fall_detect = 0;
+    end
+        
 end
 
-figure;
-plot(time, Accelometer(:,1), 'r', time, x_out(:, 5), 'b');
-title('X - axis Accelometer')
+if (fall_detect == 1) 
+    disp('Fall detected')
+else
+    disp('Not fall detected')
+end
 
-figure;
-plot(time, Accelometer(:,2), 'r', time, x_out(:, 6), 'b');
-title('Y - axis Accelometer')
-
-figure;
-plot(time, Accelometer(:,3), 'r', time, x_out(:, 7), 'b');
-title('Z - axis Accelometer')
-
-norm1 = sqrt(x_out(:, 5).^2 + x_out(:, 6).^2 + x_out(:, 7).^2);
-
-figure;
-plot(time, norm1, 'b', time, norm, 'r');
-title('Norm Accelometer')

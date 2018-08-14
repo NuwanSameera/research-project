@@ -3,10 +3,13 @@ close all
 clc
 
 %Constants
-g = 10;
+g = 9.81;
 
 %Read data from file
-data = xlsread('1-adl-1.csv');
+%data = xlsread('forward/15-forward-1.xlsx');
+data = xlsread('backward/14-backward-1.xlsx');
+%data = xlsread('latiral/18-latiral-1.xlsx');
+%data = xlsread('adl/3-adl-1.xlsx');
 
 Gyroscope = data(: , 5 : 7) * (pi / 180);   % degres/sec convert to rad/sec
 Accelometer = data(:, 2 : 4) * g;           % Units in 'g'
@@ -57,17 +60,17 @@ end
 % Plot Accelometer Data
 
 figure;
-plot(time, Accelometer(:,1), 'r', time, x_out(:, 5), 'b');
+plot(time, Accelometer(:,1), 'r', time, x_out(:, 5), 'b');grid on;
 title('X - axis Accelometer')
 legend('Raw Data','Filtered Data')
 
 figure;
-plot(time, Accelometer(:,2), 'r', time, x_out(:, 6), 'b');
+plot(time, Accelometer(:,2), 'r', time, x_out(:, 6), 'b');grid on;
 title('Y - axis Accelometer')
 legend('Raw Data','Filtered Data')
 
 figure;
-plot(time, Accelometer(:,3), 'r', time, x_out(:, 7), 'b');
+plot(time, Accelometer(:,3), 'r', time, x_out(:, 7), 'b');grid on;
 title('Z - axis Accelometer')
 legend('Raw Data','Filtered Data')
 
@@ -75,7 +78,7 @@ norm = sqrt(Accelometer(:,1).^2 + Accelometer(:,2).^2 + Accelometer(:,3).^2);
 filtered_norm = sqrt(x_out(:, 5).^2 + x_out(:, 6).^2 + x_out(:, 7).^2);
 
 figure;
-plot(time, norm, 'r', time, filtered_norm, 'b');
+plot(time, norm, 'r', time, filtered_norm, 'b');grid on;
 title('Accelometer Norm')
 legend('Raw Data','Filtered Data')
 
@@ -85,25 +88,3 @@ figure;
 
 plot(time, euler(:,1), 'r', time, euler(:,2), 'g', time, euler(:,3), 'b', time, filtered_norm(:,1), 'm');grid on;
 legend('Roll','Pitch', 'Yaw', 'Accelometer Norm')
-
-%subplot(411);
-% plot(time, euler(:,1), 'r');grid on;
-% ylabel('\phi (x-axis rotation[Roll])');
-%  
-% subplot(412);
-% plot(time, euler(:,2), 'g');grid on;
-% ylabel('\theta (y-axis rotation[pitch])');
-% 
-% subplot(413);
-% plot(time, euler(:,3), 'b');grid on;
-% ylabel('\psi (z-axis rotation[yaw])');
-% 
-% filtered_norm = sqrt(x_out(:, 5).^2 + x_out(:, 6).^2 + x_out(:, 7).^2);
-% 
-% subplot(414);
-% plot(time, norm(:, 1), 'g', time, filtered_norm(:,1));grid on;
-% ylabel('Norm of Acceleration');
-
-
-
-
